@@ -1,0 +1,124 @@
+---
+ci:
+  # format compatible with commitlint
+  autoupdate_commit_msg: "chore: pre-commit autoupdate"
+  autoupdate_schedule: monthly
+  autofix_commit_msg: |
+    chore: auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+  skip:
+    - pip-compile
+repos:
+  - repo: meta
+    hooks:
+      - id: check-useless-excludes
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: end-of-file-fixer
+      - id: no-commit-to-branch
+        args: [--branch, main]
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+      - id: check-executables-have-shebangs
+      - id: debug-statements
+        language_version: python3
+  - repo: https://github.com/Lucas-C/pre-commit-hooks.git
+    rev: v1.5.4
+    hooks:
+      - id: remove-tabs
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: "v0.1.6"
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    # keep it before yamllint
+    rev: v4.0.0-alpha.3
+    hooks:
+      - id: prettier
+        always_run: true
+        additional_dependencies:
+          - prettier
+          - prettier-plugin-toml
+          - prettier-plugin-sort-json
+  - repo: https://github.com/psf/black
+    rev: 23.11.0
+    hooks:
+      - id: black
+        language_version: python3
+  - repo: https://github.com/streetsidesoftware/cspell-cli
+    rev: v8.0.0
+    hooks:
+      - id: cspell
+        name: Spell check with cspell
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.27.2
+    hooks:
+      - id: check-github-workflows
+  - repo: https://github.com/jsh9/pydoclint
+    rev: 0.3.8
+    hooks:
+      - id: pydoclint
+        args:
+          - "--config=pyproject.toml"
+  - repo: https://github.com/pycqa/pylint
+    rev: v3.0.1
+    hooks:
+      - id: pylint
+        args:
+          - --output-format=colorized
+        additional_dependencies:
+          - distronode-core
+          - pytest
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.7.1
+    hooks:
+      - id: mypy
+        # Do not modify args to match mypy cli/ide behavior, use config if needed.
+        args: ["."]
+        pass_filenames: false
+        additional_dependencies:
+          - pytest
+          - distronode-core
+          - types-pkg_resources
+  - repo: https://github.com/jazzband/pip-tools
+    rev: 7.3.0
+    hooks:
+      - id: pip-compile
+        name: lock
+        alias: lock
+        always_run: true
+        entry: pip-compile --upgrade --resolver=backtracking -q --no-annotate --output-file=.config/requirements-lock.txt pyproject.toml --strip-extras --unsafe-package ruamel-yaml-clib
+        files: ^.config\/requirements.*$
+        language: python
+        language_version: "3.9" # minimal we support officially
+        pass_filenames: false
+        stages: [manual]
+        additional_dependencies:
+          - pip>=22.3.1
+      - id: pip-compile
+        name: deps
+        alias: deps
+        always_run: true
+        entry: pip-compile --resolver=backtracking -q --no-annotate --output-file=.config/requirements.txt pyproject.toml --extra docs --extra test --strip-extras --unsafe-package ruamel-yaml-clib
+        files: ^.config\/requirements.*$
+        language: python
+        language_version: "3.9" # minimal we support officially
+        pass_filenames: false
+        additional_dependencies:
+          - pip>=22.3.1
+      - id: pip-compile
+        entry: pip-compile --resolver=backtracking -q --no-annotate --output-file=.config/requirements.txt pyproject.toml --extra docs --extra test --strip-extras --unsafe-package ruamel-yaml-clib --upgrade
+        language: python
+        always_run: true
+        pass_filenames: false
+        files: ^.config\/requirements.*$
+        alias: up
+        stages: [manual]
+        language_version: "3.9" # minimal we support officially
+        additional_dependencies:
+          - pip>=22.3.1

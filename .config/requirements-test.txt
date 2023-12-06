@@ -1,0 +1,4 @@
+distronode-core
+coverage
+molecule
+pytest-plus>=0.6.0
