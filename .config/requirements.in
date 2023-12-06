@@ -1,3 +1,3 @@
-distronode-core>=2.14
+distronode-core==2.17.0.dev0
 pytest>=6,<8.0.0
 setuptools
